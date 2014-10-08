@@ -1,0 +1,47 @@
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+
+
+/** structure de stockage des coordonnees d'un context*/
+struct ctx_s {
+
+  void * ctx_ebp;
+  void * ctx_esp;
+
+}ctx_s;
+
+/** structure dans laquelle seront stockees les informations des contexts */
+static struct ctx_s env;
+
+/** affiche les valeurs du context, peut s'appeler recursivement*/
+void fonction(int n){
+  
+  asm("movl %%esp, %0" "\n\t" 
+      "movl %%ebp, %1" 
+      : "=r"(env.ctx_esp),
+	"=r"(env.ctx_ebp));
+
+
+  printf("Numero de l'appel : %d\nValeur ESP : %p\nValeur EBP :%p\n---------------------\n",n,env.ctx_esp,env.ctx_ebp);
+
+  /*mode imbrique*/
+  if(n>0)
+    fonction(n-1);
+
+}
+
+
+int main(){
+  printf("Appels de fonctions imbriquees\n\n");
+  fonction(5);
+  printf("\nAppels de fonctions successifs\n\n");
+  fonction(0);
+  fonction(0);
+  fonction(0);
+  fonction(0);
+  fonction(0);
+
+  return 0;
+}

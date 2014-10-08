@@ -1,0 +1,34 @@
+CC = gcc
+CFLAGS = -m32 -Wall
+#cree lexecutable
+all:displaystack.o try.o try_mul.o
+	$(CC) displaystack.o  $(CFLAGS) -o displaystack
+	$(CC) try_mul.o try.o $(CFLAGS) -o try_mul
+	
+#displaystack.o: displaystack.c
+#	$(CC) -c $< -o $@ $(CFLAGS)
+
+displaystack.o: displaystack.c
+	$(CC) -c displaystack.c -o displaystack.o $(CFLAGS)
+	
+try.o : try.c 
+	$(CC) -c $< -o $@ $(CFLAGS)
+
+try_mul.o: try_mul.c 
+	$(CC) -c $< -o $@ $(CFLAGS)
+
+
+#sert à spécifier que clean et mrproper sont particulier au makefile
+# et ne doivent pas etre consideres comme des noms de fichier
+.PHONY: clean, mrproper
+	
+	
+#supprime les fichiers .o
+clean:
+	rm -rf *.o
+	
+#lance clean et supprime l'executable
+mrproper: clean
+	rm -rf displaystack
+	
+	
