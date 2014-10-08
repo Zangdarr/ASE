@@ -37,39 +37,35 @@ void switch_to_ctx(struct ctx_s * p_ctx){
       :: "r" (ctx_courant->ctx_ebp),
        "r" (ctx_courant->ctx_esp));
 
+
   if(ctx_courant->ctx_etat == CTX_INIT){
     ctx_courant->ctx_etat = CTX_ACTIVABLE;
+irq_enable();
     ctx_courant->ctx_f(ctx_courant->ctx_args);
+    ctx_courant->ctx_etat = CTX_TERMINE;
   }
   else {
     return;
   }
  }
 
-struct ctx_s ctx_ping;
-struct ctx_s ctx_pong;
+
 struct ctx_s * ctxs;
-
-
 
 
  int main(){
 
-   init_ctx(&ctx_ping, 16384, f_ping, NULL);
-   init_ctx(&ctx_pong, 16384, f_pong, NULL);
-   switch_to_ctx(&ctx_ping);
+   create_ctx(16384, f_ping, NULL);
+   create_ctx(16384, f_pong, NULL);
+   start_sched();
+
    exit(EXIT_SUCCESS);
  }
 
 void f_ping(void * args){
 
   while(1){
-    printf("Heeeeeyyyy Brother\n");
-    switch_to_ctx(&ctx_pong);
-    printf("Heeeeeyyyy Sister\n");
-    switch_to_ctx(&ctx_pong);
-    printf("OOOOOOOOOOOOOhhh\n");
-    switch_to_ctx(&ctx_pong);
+    printf("ping");
   }
 }
 
@@ -77,12 +73,7 @@ void f_ping(void * args){
 void f_pong(void * args){
 
   while(1){
-    printf("There's an endless road to rediscover\n");
-    switch_to_ctx(&ctx_ping);
-    printf("Know the water sweat but blood is thicker\n");
-    switch_to_ctx(&ctx_ping);
-    printf("OOOOOOOooooooohhh\n");
-    switch_to_ctx(&ctx_ping);
+    printf("pong");
   }
 }
 
@@ -92,7 +83,7 @@ int create_ctx(int stack_size, func_t f, void * args){
 
   struct ctx_s * nouveau = malloc(stack_size);
   init_ctx(nouveau, stack_size, f, args);
-  irq_disable();
+    irq_disable();
   if (ctxs) {
     nouveau->next = ctxs->next;
     ctxs->next = nouveau;
@@ -102,13 +93,14 @@ int create_ctx(int stack_size, func_t f, void * args){
     ctxs->next = nouveau;
   }
   irq_enable();
-
   return 0;
 }
 
 void yield(){
+  irq_disable();
   if(ctx_courant){
     struct ctx_s * tmp;
+    
     while(ctx_courant->next->ctx_etat == CTX_TERMINE && ctx_courant->next != ctx_courant) {
       tmp = ctx_courant->next;
       ctx_courant->next = ctx_courant->next->next;
@@ -119,22 +111,30 @@ void yield(){
       switch_to_ctx(ctx_courant->next);
     }
     else {
+      
+      
+      irq_enable();
       exit(0);
 
     }
   }
-  else if(ctxs){
+  else{
     switch_to_ctx(ctxs);
   }
- 
-  exit(EXIT_FAILURE);
-     
+  
+  irq_enable();
+  
 }
 
 
 void start_sched(){
 
+  
   setup_irq(TIMER_IRQ, yield);
   start_hw();
+  yield();
+
+
 
 }
+
