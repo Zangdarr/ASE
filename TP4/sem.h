@@ -1,5 +1,6 @@
 #define SEM_CORRECT_MAGIC 0xCCBBCCBB
 #define CORRECT_MAGIC 0xAABBAABB
+#define TIMER_IRQ 2
 
 #include <string.h>
 #include <stdio.h>
@@ -8,6 +9,7 @@
 #include "hw.h"
 
 typedef void (func_t)(void *); 
+typedef void (irq_handler_func_t)(void);
 enum etat_e{ CTX_TERMINE, CTX_ACTIVABLE, CTX_INIT, CTX_BLOQUE};
 
 struct ctx_s {
@@ -49,3 +51,6 @@ int init_ctx(struct ctx_s * p_ctx, int stack_size, func_t * f, void* args);
 void switch_to_ctx(struct ctx_s * p_ctx);
 
 int create_ctx(int stack_size, func_t f, void * args);
+void setup_irq(unsigned int irq, irq_handler_func_t handler);
+void start_sched();
+void start_hw();

@@ -1,14 +1,16 @@
 CC = gcc
 CFLAGS = -m32 -Wall
 #cree lexecutable
-all:sem.o hw.o
-	$(CC) sem.o hw.o $(CFLAGS) -o sem
+all:proscons.o sem.o hw.o
+	$(CC) proscons.o sem.o hw.o $(CFLAGS) -o sem
 #displaystack.o: displaystack.c
 #	$(CC) -c $< -o $@ $(CFLAGS)
 
 
-	
-sem.o : sem.c 
+proscons.o : proscons.c sem.h
+	$(CC) -c $< -o $@ $(CFLAGS)
+
+sem.o : sem.c sem.h
 	$(CC) -c $< -o $@ $(CFLAGS)
 
 hw.o : hw.c
