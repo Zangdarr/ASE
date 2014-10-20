@@ -27,6 +27,6 @@ clean:
 	
 #lance clean et supprime l'executable
 mrproper: clean
-	rm -rf displaystack
+	rm -rf switch_to
 	
 	
