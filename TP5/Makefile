@@ -13,9 +13,9 @@ LIBS    = -L$(LIBDIR) -lhardware
 ###------------------------------
 ### Main targets 
 ###------------------------------------------------------------
-BINARIES= mkhd dmps
+BINARIES= mkhd dmps frmt
 OBJECTS	= $(addsuffix .o,\
-	  mkhd dmps)
+	  mkhd dmps frmt)
 
 all: $(BINARIES) $(OBJECTS)
 
@@ -26,14 +26,16 @@ all: $(BINARIES) $(OBJECTS)
 
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c $^ $(INCDIR) $(LIBS) $(INCDIR)
+	$(CC) $(CFLAGS) -c $^ $(INCDIR) $(LIBS)
 
 mkhd: mkhd.o 
 	$(CC) $(CFLAGS) -o mkhd $^ $(LIBS)
 
-dmps: dmps.o 
+dmps: dmps.o drive.o 
 	$(CC) $(CFLAGS) -o dmps $^ $(LIBS)
 
+frmt: frmt.o drive.o 
+	$(CC) $(CFLAGS) -o frmt $^ $(LIBS)
 
 
 ###------------------------------
